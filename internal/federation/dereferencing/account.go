@@ -66,8 +66,8 @@ func accountFresh(
 		return true
 	}
 
-	if !account.SuspendedAt.IsZero() {
-		// Can't refresh
+	if account.IsSuspended() {
+		// Can't/won't refresh
 		// suspended accounts.
 		return true
 	}
@@ -390,8 +390,9 @@ func (d *Dereferencer) enrichAccountSafely(
 	account *gtsmodel.Account,
 	accountable ap.Accountable,
 ) (*gtsmodel.Account, ap.Accountable, error) {
-	// Noop if account has been suspended.
-	if !account.SuspendedAt.IsZero() {
+	// Noop if account suspended;
+	// we don't want to deref it.
+	if account.IsSuspended() {
 		return account, nil, nil
 	}
 
