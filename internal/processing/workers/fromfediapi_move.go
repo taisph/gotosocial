@@ -253,22 +253,25 @@ func (p *fediAPI) MoveAccount(ctx context.Context, fMsg messages.FromFediAPI) er
 	*/
 
 	var errs gtserror.MultiError
-	if targetAcct.IsLocal() {
-		// Origin account is
-		// moving to this instance.
-		errs = p.MoveRemoteAccountHere(
-			ctx,
-			originAcct,
-			targetAcct,
-		)
-	} else {
-		// Origin account is moving
-		// to another instance (not here).
-		errs = p.MoveRemoteAccountElsewhere(
-			ctx,
-			originAcct,
-			targetAcct,
-		)
+
+	// Transfer originAcct's followers
+	// on this instance to targetAcct.
+	if err := p.RedirectAccountFollowers(
+		ctx,
+		originAcct,
+		targetAcct,
+	); err != nil {
+		errs.Append(err)
+	}
+
+	// Remove follows on this
+	// instance owned by originAcct.
+	if err := p.RemoveAccountFollowing(
+		ctx,
+		originAcct,
+		targetAcct,
+	); err != nil {
+		errs.Append(err)
 	}
 
 	// Whatever happened above, error or
@@ -304,37 +307,19 @@ func (p *fediAPI) MoveAccount(ctx context.Context, fMsg messages.FromFediAPI) er
 	return nil
 }
 
-// MoveRemoteAccountHere handles the Move
-// activity for originAcct moving to targetAcct.
+// RedirectAccountFollowers redirects all local
+// followers of originAcct to targetAcct.
 //
 // Both accounts must be fully dereferenced
-// already, the Move must be valid, and
-// targetAcct must be a local account.
-func (p *fediAPI) MoveRemoteAccountHere(
-	ctx context.Context,
-	originAcct *gtsmodel.Account,
-	targetAcct *gtsmodel.Account,
-) gtserror.MultiError {
-	// TODO
-	return nil
-}
-
-// MoveRemoteAccountElsewhere handles the Move
-// activity for originAcct moving to targetAcct
-// by redirecting all local followers of
-// originAcct to targetAcct.
-//
-// Both accounts must be fully dereferenced
-// already, the Move must be valid, and
-// targetAcct must be a remote account.
+// already, and the Move must be valid.
 //
 // Callers to this function MUST have obtained
 // a lock already by calling FedLocks.Lock.
-func (p *fediAPI) MoveRemoteAccountElsewhere(
+func (p *fediAPI) RedirectAccountFollowers(
 	ctx context.Context,
 	originAcct *gtsmodel.Account,
 	targetAcct *gtsmodel.Account,
-) gtserror.MultiError {
+) error {
 	var errs gtserror.MultiError
 
 	// Any local followers of originAcct should
@@ -356,7 +341,7 @@ func (p *fediAPI) MoveRemoteAccountElsewhere(
 
 		// Shouldn't do anything
 		// else if this happens.
-		return errs
+		return errs.Combine()
 	}
 
 	for _, follow := range followers {
@@ -417,6 +402,16 @@ func (p *fediAPI) MoveRemoteAccountElsewhere(
 		}
 	}
 
+	return errs.Combine()
+}
+
+func (p *fediAPI) RemoveAccountFollowing(
+	ctx context.Context,
+	originAcct *gtsmodel.Account,
+	targetAcct *gtsmodel.Account,
+) error {
+	var errs gtserror.MultiError
+
 	// Any follows owned by originAcct which target
 	// accounts on our instance should be removed.
 	//
@@ -434,7 +429,7 @@ func (p *fediAPI) MoveRemoteAccountElsewhere(
 
 		// Shouldn't do anything
 		// else if this happens.
-		return errs
+		return errs.Combine()
 	}
 
 	for _, follow := range following {
@@ -460,5 +455,5 @@ func (p *fediAPI) MoveRemoteAccountElsewhere(
 		)
 	}
 
-	return errs
+	return errs.Combine()
 }
