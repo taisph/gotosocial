@@ -66,6 +66,12 @@ func (f *federatingDB) Update(ctx context.Context, asType vocab.Type) error {
 	}
 
 	if statusable, ok := ap.ToStatusable(asType); ok {
+		if requestingAcct.IsMoving() {
+			// A Moving account
+			// can't do this.
+			return nil
+		}
+
 		return f.updateStatusable(ctx, receivingAcct, requestingAcct, statusable)
 	}
 
