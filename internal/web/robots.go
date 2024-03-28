@@ -29,7 +29,6 @@ const (
 	robotsTxt           = `# GoToSocial robots.txt -- to edit, see internal/web/robots.go
 # More info @ https://developers.google.com/search/docs/crawling-indexing/robots/intro
 
-# Before we commence, a giant fuck you to ChatGPT in particular.
 # https://platform.openai.com/docs/gptbot
 User-agent: GPTBot
 Disallow: /
@@ -39,7 +38,6 @@ Disallow: /
 User-agent: ChatGPT-User
 Disallow: /
 
-# And a giant fuck you to Google Bard and their other generative AI ventures too.
 # https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers
 User-agent: Google-Extended
 Disallow: /
@@ -54,7 +52,6 @@ Disallow: /
 User-agent: Omgilibot
 Disallow: /
 
-# Block Faceboobot, because Meta.
 # https://developers.facebook.com/docs/sharing/bot
 User-agent: FacebookBot
 Disallow: /
@@ -64,7 +61,6 @@ Disallow: /
 User-agent: WellKnownBot
 Disallow: /
 
-# Block Amazonbot, because Amazon.
 # https://developer.amazon.com/amazonbot
 User-agent: Amazonbot
 Disallow: /
