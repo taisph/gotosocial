@@ -58,7 +58,7 @@ dockers:
     goos: linux
     goarch: amd64
     image_templates:
-    - "superseriousbusiness/{{ .ProjectName }}:{{ .Version }}-amd64"
+    - 'superseriousbusiness/{{ .ProjectName }}:{{ replace .Version "+" "-" }}-amd64'
     - "superseriousbusiness/{{ .ProjectName }}:latest-amd64"
     - "{{ if .IsSnapshot }}superseriousbusiness/{{ .ProjectName }}:snapshot-amd64{{ end }}"
     build_flag_templates:
@@ -78,7 +78,7 @@ dockers:
     goos: linux
     goarch: arm64
     image_templates:
-    - "superseriousbusiness/{{ .ProjectName }}:{{ .Version }}-arm64v8"
+    - 'superseriousbusiness/{{ .ProjectName }}:{{ replace .Version "+" "-" }}-arm64v8'
     - "superseriousbusiness/{{ .ProjectName }}:latest-arm64v8"
     - "{{ if .IsSnapshot }}superseriousbusiness/{{ .ProjectName }}:snapshot-arm64v8{{ end }}"
     build_flag_templates:
@@ -99,7 +99,7 @@ dockers:
     goarch: arm
     goarm: 6
     image_templates:
-    - "superseriousbusiness/{{ .ProjectName }}:{{ .Version }}-armv6"
+    - 'superseriousbusiness/{{ .ProjectName }}:{{ replace .Version "+" "-" }}-armv6'
     - "superseriousbusiness/{{ .ProjectName }}:latest-armv6"
     - "{{ if .IsSnapshot }}superseriousbusiness/{{ .ProjectName }}:snapshot-armv6{{ end }}"
     build_flag_templates:
@@ -120,7 +120,7 @@ dockers:
     goarch: arm
     goarm: 7
     image_templates:
-    - "superseriousbusiness/{{ .ProjectName }}:{{ .Version }}-armv7"
+    - 'superseriousbusiness/{{ .ProjectName }}:{{ replace .Version "+" "-" }}-armv7'
     - "superseriousbusiness/{{ .ProjectName }}:latest-armv7"
     - "{{ if .IsSnapshot }}superseriousbusiness/{{ .ProjectName }}:snapshot-armv7{{ end }}"
     build_flag_templates:
@@ -183,7 +183,7 @@ checksum:
   name_template: 'checksums.txt'
 snapshot:
   # https://goreleaser.com/customization/snapshots/
-  name_template: "{{ incpatch .Version }}-SNAPSHOT"
+  name_template: '{{ if and (index .Env "SNAPSHOT_VERSION") .Env.SNAPSHOT_VERSION }}{{ .Env.SNAPSHOT_VERSION }}{{ else }}{{ incpatch .Version }}-SNAPSHOT{{ end }}'
 source:
   # https://goreleaser.com/customization/source/
   enabled: true
