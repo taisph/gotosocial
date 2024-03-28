@@ -116,5 +116,15 @@ func version() string {
 		}
 	}
 
-	return strings.Join(info, "+")
+	return strings.Join(info, versionSeparator(Version))
+}
+
+// versionSeparator returns an appropriate separator for adhering to semantic
+// versioning build metadata.
+func versionSeparator(version string) string {
+	if strings.IndexRune(version, '+') == -1 {
+		return "+"
+	}
+
+	return "."
 }
